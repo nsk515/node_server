@@ -1,6 +1,7 @@
 const express = require("express");
 const config = require("../Config/Config.js");
 const bodyParser = require("body-parser");
+const pgdb = require("./PgDatabase");
 
 app = express();
 app.use(bodyParser.json());
@@ -16,12 +17,14 @@ function begin() {
 }
 
 function GET_APIhandler(req, res) {
-    console.log('GET Request');
-    res.send({name: 'Roshnee'});
+    console.log('GET API Request');
+    pgdb.getAllPeople().then((rep) => {
+        res.send(JSON.stringify(rep));
+    })
 }
 
 function POST_APIhandler(req, res) {
-    console.log('POST Request: ' + JSON.stringify(req.body));
+    console.log('POST API Request: ' + JSON.stringify(req.body));
     res.send({name: 'Roshnee'});
 }
 
