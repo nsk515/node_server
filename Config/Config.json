@@ -1,0 +1,16 @@
+{
+  "development" : {
+    "mqttBrokerURL" : "mqtt://test.mosquitto.org",
+    "backendPort": "4000"
+  },
+  
+  "testing" : {
+    "mqttBrokerURL" : "mqtt://test.mosquitto.org",
+    "backendPort": "4000"
+  },
+  
+  "production" : {
+    "mqttBrokerURL" : "mqtt://test.mosquitto.org",
+    "backendPort": "4000"
+  }
+}
