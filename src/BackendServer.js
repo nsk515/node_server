@@ -18,7 +18,7 @@ function begin() {
 
 function GET_APIhandler(req, res) {
     console.log('GET API Request');
-    pgdb.getAllPeople().then((rep) => {
+    pgdb.getFromTable('people3', ['id', 'name', 'email'], null, 'id', 0).then((rep) => {
         res.send(JSON.stringify(rep));
     })
 }

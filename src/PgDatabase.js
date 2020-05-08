@@ -7,29 +7,130 @@ const pool = new Pool({
   port: 5432
 });
 
-pool.query("CREATE TABLE IF NOT EXISTS people2 (\
-                id SERIAL,\
-                name varchar(15) NOT NULL,\
-                company varchar(15) NOT NULL,\
-                PRIMARY KEY (id)\
-            )", (error, result) => {
-                if(error) {
-                    console.log(error);
-                }
-            });
 
-getAllPeople = () => { return new Promise(function(resolve, reject) {
-    pool.query("SELECT * FROM people2", (error, result) => {
-        if(error) {
-            reject(error);
-        }
-        else {
-            resolve(result.rows);
-        }
-    }
-)}); 
+// Basic API to create table
+// API to create a table
+createTable = (tableName, fields) => {
+    return new Promise(function(resolve, reject) {
+        var queryString = "CREATE TABLE IF NOT EXISTS " + tableName + " (";
+        fields.forEach(element => {
+            queryString += element.name + " " + element.type + " " + (element.cond?element.cond:"") + ", ";
+        });
+        queryString += "PRIMARY KEY (" + fields[0].name + ")";
+        queryString += ")"
+        console.log('createTable: ', queryString);
+        pool.query(queryString, (error, result) => {
+            if(error) {
+                console.log('createTable: ', error);
+                reject(error);
+            }
+            else {
+                resolve(result.rows);
+            }
+        });
+    });
 }
 
+// API to insert data into table
+insertIntoTable = (tableName, fieldData) => {
+    return new Promise(function(resolve, reject) {
+        var queryString = "INSERT INTO " + tableName + " (";
+        var fieldNames = [];
+        var fieldValues = [];
+        fieldData.forEach(element => {
+            fieldNames.push(element.name);
+            fieldValues.push("'" + element.value + "'");
+        });
+        queryString += fieldNames.join(',') + ") VALUES (" + fieldValues.join(',') + ")";
+        console.log('insertIntoTable: ', queryString);
+        pool.query(queryString, (error, result) => {
+            if(error) {
+                console.log('insertIntoTable: ', error);
+                reject(error);
+            }
+            else {
+                resolve(result);
+            }
+        });
+    });
+}
+
+// API to fetch data from table
+getFromTable = (tableName, fieldData, cond, orderBy, limit) => {
+    return new Promise(function(resolve, reject) {
+        var queryString = "SELECT " + (Array.isArray(fieldData)?fieldData.join(','):'*') + " FROM " + tableName;
+        queryString += (cond ? (" WHERE " + cond) : '');
+        queryString += (orderBy ? (" ORDER BY " + orderBy) : '');
+        queryString += (limit ? (" LIMIT " + limit.toString()) : '');
+        console.log('getFromTable: ', queryString);
+        pool.query(queryString, (error, result) => {
+            if(error) {
+                console.log('getFromTable: ', error);
+                reject(error);
+            }
+            else {
+                console.log(result.rows);
+                resolve(result.rows);
+            }
+        });
+    });
+}
+
+// API to update a row/rows in a table
+updateIntoTable = (tableName, fieldData, cond) => {
+    return new Promise(function(resolve, reject) {
+        var queryString = "UPDATE " + tableName + " SET ";
+        var fieldNames = [];
+        fieldData.forEach(element => {
+            fieldNames.push(element.name + "='" + element.value + "'");
+        });
+        queryString += fieldNames.join(',');
+        queryString += cond ? " WHERE " + cond : '' ;
+        console.log('updateIntoTable: ', queryString);
+        pool.query(queryString, (error, result) => {
+            if(error) {
+                console.log('updateIntoTable: ', error);
+                reject(error);
+            }
+            else {
+                resolve(result.rows);
+            }
+        });
+    });
+}
+
+
+/*
+// TEST DATABASE API's
+// Test create API
+var peopleFields = [
+    {name: 'id', type: 'SERIAL', cond: ''},
+    {name: 'name', type: 'varchar(15)', cond: 'NOT NULL'},
+    {name: 'email', type: 'varchar(15)', cond: 'NOT NULL'},
+];
+createTable('people3', peopleFields);
+
+// Test insert API
+var peopleData = [
+    {name: 'name', value: 'Neeraj'},
+    {name: 'email', value: 'neeraj@kale.com'}
+];
+insertIntoTable('people3', peopleData);
+
+// Test get API
+var fieldData = ['id', 'name', 'email'];
+getFromTable('people3', fieldData, "name='Neeraj'", 'id', 5);
+
+// Test update API
+var peopleData = [
+    {name: 'name', value: 'Neeraj'},
+    {name: 'email', value: 'neeraj@kale.com'}
+];
+updateIntoTable('people3', peopleData, "id=1");
+*/
+
 module.exports = {
-    getAllPeople
+    createTable,
+    insertIntoTable,
+    getFromTable
 }
