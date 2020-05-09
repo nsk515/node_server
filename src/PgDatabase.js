@@ -1,3 +1,4 @@
+const Constants = require('../Config/Constants');
 const Pool = require('pg').Pool
 const pool = new Pool({
   user: 'pi',
@@ -129,8 +130,57 @@ var peopleData = [
 updateIntoTable('people3', peopleData, "id=1");
 */
 
+
+// Create initial tables
+// Create Device Table
+{
+    var deviceTableFields = [
+        {name: 'id',            type: 'SERIAL',         cond: ''},
+        {name: 'MAC',           type: 'VARCHAR(20)',    cond: ''},
+        {name: 'deviceID',      type: 'VARCHAR(15)',    cond: 'NOT NULL'},
+        {name: 'deviceName',    type: 'VARCHAR(15)',    cond: 'NOT NULL'}
+        // {name: 'timeFormat',    type: 'VARCHAR(15)',    cond: ''},
+        // {name: 'favorite',      type: 'BOOLEAN',        cond: ''},
+    ]
+    // var deviceTableData = [
+    //     {name: 'MAC',       value: 'a1:b2:c3:d4:e5:d6'},
+    //     {name: 'deviceID',  value: 'ME01002345'},
+    //     {name: 'deviceName', value: 'My Test Device2'}
+    // ]
+    createTable(Constants.TABLENAMES.deviceTable, deviceTableFields).then(() => {
+        // insertIntoTable(Constants.TABLENAMES.deviceTable, deviceTableData);
+    });
+}
+
+
+// Create Data Table
+{
+    var dataTableFields = [
+        {name: 'id',            type: 'SERIAL',         cond: ''},
+        {name: 'deviceID',      type: 'VARCHAR(15)',    cond: 'NOT NULL'},
+        {name: 'Value',         type: 'INTEGER',        cond: ''},
+        {name: 'timeStamp',     type: 'BIGINT',      cond: ''}
+    ]
+    // var dataTableData = [
+    //     {name: 'deviceID',  value: 'ME01001234'},
+    //     {name: 'Value', value: 1698},
+    //     {name: 'timeStamp', value: 1589019445}
+    // ]
+    createTable(Constants.TABLENAMES.dataTable, dataTableFields).then(() => {
+        // insertIntoTable(Constants.TABLENAMES.dataTable, dataTableData);
+    });
+}
+
+
+// Create more tables here as needed
+
+
+
+
+
 module.exports = {
     createTable,
     insertIntoTable,
-    getFromTable
+    getFromTable,
+    updateIntoTable
 }
