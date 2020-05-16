@@ -2,9 +2,11 @@ const express = require("express");
 const config = require("../Config/Config.js");
 const bodyParser = require("body-parser");
 const pgdb = require("./PgDatabase");
+const cors = require('cors');
 const Constants = require('../Config/Constants');
 
 app = express();
+app.use(cors());
 router = express.Router();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -33,6 +35,10 @@ router.route('/test')
         pgdb.getFromTable('people3', ['id', 'name', 'email'], null, 'id', 0)
         .then((rep) => {
             res.send(JSON.stringify(rep));
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
         });
     })
     .post((req, res) => {
@@ -53,6 +59,10 @@ router.route('/test/:id')
         pgdb.getFromTable('people3', ['id', 'name', 'email'], 'id='+req.params.id.toString(), 'id', 0)
         .then((rep) => {
             res.send(JSON.stringify(rep));
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
         });
     })
     .put((req, res) => {
@@ -69,11 +79,15 @@ router.route('/device')
         console.log('GET all devices');
         pgdb.getFromTable(Constants.TABLENAMES.deviceTable, null, null ,null, 0)
         .then((rep) => {
-            res.send(JSON.stringify(rep));
+            res.send((rep));
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
         });
     })
     .post((req, res) => {
-        console.log('Add a new device');
+        console.log('Add a new device', req.body);
         var deviceData = [];
         req.body.MAC ? deviceData.push({name: 'MAC', value: req.body.MAC}) : '';
         req.body.deviceID ? deviceData.push({name: 'deviceID', value: req.body.deviceID}) : '';
@@ -81,6 +95,10 @@ router.route('/device')
         pgdb.insertIntoTable(Constants.TABLENAMES.deviceTable, deviceData)
         .then((rep) => {
             res.send({'status': 'OK'});
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
         });
     });
 router.route('/device/:id')
@@ -89,6 +107,10 @@ router.route('/device/:id')
         pgdb.getFromTable(Constants.TABLENAMES.deviceTable, null, 'id='+req.params.id.toString() ,'id', 0)
         .then((rep) => {
             res.send(JSON.stringify(rep));
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
         });
     })
     .put((req, res) => {
@@ -101,6 +123,10 @@ router.route('/device/:id')
         .then((rep) => {
             res.send({'status' : 'OK'});
         })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
+        });
     })
     .delete((req, res) => {
         console.log("Device delete: ", req.params.id);
