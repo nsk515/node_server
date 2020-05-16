@@ -46,7 +46,7 @@ insertIntoTable = (tableName, fieldData) => {
         console.log('insertIntoTable: ', queryString);
         pool.query(queryString, (error, result) => {
             if(error) {
-                console.log('insertIntoTable: ', error);
+                console.log('insertIntoTable: ', 'failed');
                 reject(error);
             }
             else {
