@@ -9,7 +9,7 @@ const pool = new Pool({
 });
 
 
-// Basic API to create table
+// Basic APIs
 // API to create a table
 createTable = (tableName, fields) => {
     return new Promise(function(resolve, reject) {
@@ -100,6 +100,29 @@ updateIntoTable = (tableName, fieldData, cond) => {
     });
 }
 
+// API to delete row in a table
+deleteFromTable = (tableName, cond) => {
+    return new Promise(function(resolve, reject) {
+        if(cond != null) {
+            var queryString = "DELETE FROM " + tableName + " ";
+            queryString += "WHERE " + cond;
+            console.log('deleteFromTable: ', queryString);
+            pool.query(queryString, (error, result) => {
+                if(error) {
+                    console.log('deleteFromTable failed');
+                    reject(error);
+                }
+                else {
+                    resolve(result.rows);
+                }
+            })
+        }
+        else {
+            reject('No condition specified');
+        }
+    });
+}
+
 
 /*
 // TEST DATABASE API's
@@ -175,12 +198,32 @@ updateIntoTable('people3', peopleData, "id=1");
 // Create more tables here as needed
 
 
-
+// App Specific APIs
+getDataForID = (id) => {
+    return new Promise(function(resolve, reject) {
+        var queryString = "SELECT da.id,d.deviceid,d.devicename,da.value,da.timestamp FROM devicedb d join datadb da ON d.deviceid=da.deviceid ";
+        queryString += id ? "WHERE da.id="+id.toString() : '' ;
+        queryString += " ORDER BY da.timestamp";
+        console.log('getDataForID', queryString);
+        pool.query(queryString, (error, result) => {
+            if(error) {
+                console.log('getDataForID: ', error);
+                reject(error);
+            }
+            else {
+                console.log(result.rows);
+                resolve(result.rows);
+            }
+        });
+    });
+}
 
 
 module.exports = {
     createTable,
     insertIntoTable,
     getFromTable,
-    updateIntoTable
+    updateIntoTable,
+    deleteFromTable,
+    getDataForID
 }
