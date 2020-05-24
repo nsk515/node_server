@@ -28,7 +28,7 @@ module.exports = {
  *******************    Define Routes For various API's below   ************************
  ***************************************************************************************
  ***************************************************************************************/
-// Test GET API
+// Test API Routes
 router.route('/test')
     .get((req, res) => {
         console.log('GET API Request', req.body);
@@ -74,10 +74,11 @@ router.route('/test/:id')
         res.send({type: 'DELETE'});
     });
 
+// device API routes
 router.route('/device')
     .get((req, res) => {
         console.log('GET all devices');
-        pgdb.getFromTable(Constants.TABLENAMES.deviceTable, null, null ,null, 0)
+        pgdb.getFromTable(Constants.TABLENAMES.deviceTable, null, null , 'id', 0)
         .then((rep) => {
             res.send((rep));
         })
@@ -89,9 +90,9 @@ router.route('/device')
     .post((req, res) => {
         console.log('Add a new device', req.body);
         var deviceData = [];
-        req.body.MAC ? deviceData.push({name: 'MAC', value: req.body.MAC}) : '';
-        req.body.deviceID ? deviceData.push({name: 'deviceID', value: req.body.deviceID}) : '';
-        req.body.deviceName ? deviceData.push({name: 'deviceName', value: req.body.deviceName}) : '';
+        req.body.mac ? deviceData.push({name: 'mac', value: req.body.mac}) : '';
+        req.body.deviceid ? deviceData.push({name: 'deviceid', value: req.body.deviceid}) : '';
+        req.body.devicename ? deviceData.push({name: 'devicename', value: req.body.devicename}) : '';
         pgdb.insertIntoTable(Constants.TABLENAMES.deviceTable, deviceData)
         .then((rep) => {
             res.send({'status': 'OK'});
@@ -115,10 +116,11 @@ router.route('/device/:id')
     })
     .put((req, res) => {
         console.log("Edit device: " + req.params.id);
+        console.log('body', req.body);
         var deviceData = [];
-        req.body.MAC ? deviceData.push({name: 'MAC', value: req.body.MAC}) : '';
-        req.body.deviceID ? deviceData.push({name: 'deviceID', value: req.body.deviceID}) : '';
-        req.body.deviceName ? deviceData.push({name: 'deviceName', value: req.body.deviceName}) : '';
+        req.body.mac ? deviceData.push({name: 'mac', value: req.body.mac}) : '';
+        req.body.deviceid ? deviceData.push({name: 'deviceid', value: req.body.deviceid}) : '';
+        req.body.devicename ? deviceData.push({name: 'devicename', value: req.body.devicename}) : '';
         pgdb.updateIntoTable(Constants.TABLENAMES.deviceTable, deviceData, 'id='+req.params.id.toString())
         .then((rep) => {
             res.send({'status' : 'OK'});
@@ -130,5 +132,98 @@ router.route('/device/:id')
     })
     .delete((req, res) => {
         console.log("Device delete: ", req.params.id);
-        res.send({'status' : 'Yet To Implement'});
+        pgdb.deleteFromTable(Constants.TABLENAMES.deviceTable, 'id='+req.params.id.toString())
+        .then((rep) => {
+            res.send({'status' : 'OK'});
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
+        })
+    });
+
+
+// data API routes
+router.route('/data')
+    .get((req, res) => {
+        console.log('GET all data');
+        pgdb.getDataForID(0)
+        .then((rep) => {
+            res.send((rep));
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
+        });
+    })
+    .post((req, res) => {
+        console.log('Add a new data', req.body);
+        var deviceData = [];
+        if(req.body.deviceid && req.body.value) {
+            deviceData.push({name: 'deviceid', value: req.body.deviceid});
+            deviceData.push({name: 'value', value: req.body.value});
+            if(req.body.timestamp) {
+                deviceData.push({name: 'timestamp', value: req.body.timestamp});
+            }
+            else {
+                var date = new Date();
+                var timestamp = date.getTime();
+                deviceData.push({name: 'timestamp', value: Math.floor(timestamp/1000)});
+            }
+        }
+        pgdb.insertIntoTable(Constants.TABLENAMES.dataTable, deviceData)
+        .then((rep) => {
+            res.send({'status': 'OK'});
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
+        });
+    });
+router.route('/data/:id')
+    .get((req, res) => {
+        console.log('GET data: ' + req.params.id);
+        pgdb.getDataForID(req.params.id)
+        .then((rep) => {
+            res.send(JSON.stringify(rep));
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
+        });
+    })
+    .put((req, res) => {
+        console.log("Edit data: " + req.params.id);
+        var deviceData = [];
+        if(req.body.deviceid && req.body.value) {
+            deviceData.push({name: 'deviceid', value: req.body.deviceid});
+            deviceData.push({name: 'value', value: req.body.value});
+            if(req.body.timestamp) {
+                deviceData.push({name: 'timestamp', value: req.body.timestamp});
+            }
+            else {
+                var date = new Date();
+                var timestamp = date.getTime();
+                deviceData.push({name: 'timestamp', value: timestamp});
+            }
+        }
+        pgdb.updateIntoTable(Constants.TABLENAMES.dataTable, deviceData, 'id='+req.params.id.toString())
+        .then((rep) => {
+            res.send({'status' : 'OK'});
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
+        });
+    })
+    .delete((req, res) => {
+        console.log("Device data: ", req.params.id);
+        pgdb.deleteFromTable(Constants.TABLENAMES.dataTable, 'id='+req.params.id.toString())
+        .then((rep) => {
+            res.send({'status' : 'OK'});
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
+        })
     });
