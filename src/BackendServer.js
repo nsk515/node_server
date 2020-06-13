@@ -121,6 +121,10 @@ router.route('/device/:id')
         req.body.mac ? deviceData.push({name: 'mac', value: req.body.mac}) : '';
         req.body.deviceid ? deviceData.push({name: 'deviceid', value: req.body.deviceid}) : '';
         req.body.devicename ? deviceData.push({name: 'devicename', value: req.body.devicename}) : '';
+        req.body.favorite ? deviceData.push({name: 'favorite', value: req.body.favorite}) : '';
+        req.body.widget ? deviceData.push({name: 'widget', value: req.body.widget}) : '';
+        req.body.nodetype ? deviceData.push({name: 'nodetype', value: req.body.nodetype}) : '';
+        req.body.protocol ? deviceData.push({name: 'protocol', value: req.body.protocol}) : '';
         pgdb.updateIntoTable(Constants.TABLENAMES.deviceTable, deviceData, 'id='+req.params.id.toString())
         .then((rep) => {
             res.send({'status' : 'OK'});
@@ -226,4 +230,32 @@ router.route('/data/:id')
             res.statusMessage = "Database Operation failed";
             res.status(500).end();
         })
+    });
+
+// Chart API routes
+router.route('/widget/:widgetType')
+    .get((req, res) => {
+        console.log('GET widget type: ' + req.params.widgetType);
+        pgdb.getFromTable(Constants.TABLENAMES.deviceTable, ['id'], "widget="+ req.params.widgetType, 'id', 0)
+        .then((rep) => {
+            res.send((rep));
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
+        });
+    });
+
+// Device Data API routes
+router.route('/device/data/:deviceid')
+    .get((req, res) => {
+        console.log('GET device data: ' + req.params.deviceid);
+        pgdb.getFromTable(Constants.TABLENAMES.dataTable, null, "deviceid IN ('"+ req.params.deviceid+"')", 'timestamp', 0)
+        .then((rep) => {
+            res.send((rep));
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
+        });
     });

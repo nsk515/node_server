@@ -32,6 +32,23 @@ createTable = (tableName, fields) => {
     });
 }
 
+// API to drop a table
+dropTable = (tableName) => {
+    return new Promise(function(resolve, reject) {
+        var queryString = "DROP TABLE IF EXISTS " + tableName;
+        console.log('dropTable: ', queryString);
+        pool.query(queryString, (error, result) => {
+            if(error) {
+                console.log('dropTable: ', error);
+                reject(error);
+            }
+            else {
+                resolve();
+            }
+        });
+    });
+}
+
 // API to insert data into table
 insertIntoTable = (tableName, fieldData) => {
     return new Promise(function(resolve, reject) {
@@ -161,9 +178,11 @@ updateIntoTable('people3', peopleData, "id=1");
         {name: 'id',            type: 'SERIAL',         cond: ''},
         {name: 'MAC',           type: 'VARCHAR(20)',    cond: ''},
         {name: 'deviceID',      type: 'VARCHAR(15)',    cond: 'NOT NULL'},
-        {name: 'deviceName',    type: 'VARCHAR(15)',    cond: 'NOT NULL'}
+        {name: 'deviceName',    type: 'VARCHAR(15)',    cond: 'NOT NULL'},
         // {name: 'timeFormat',    type: 'VARCHAR(15)',    cond: ''},
-        // {name: 'favorite',      type: 'BOOLEAN',        cond: ''},
+         {name: 'favorite',      type: 'BOOLEAN',       cond: 'DEFAULT FALSE'},
+         {name: 'widget',       type: 'INTEGER',        cond: 'DEFAULT 1'},
+         {name: 'nodetype',     type: 'INTEGER',        cond: 'DEFAULT 1'}
     ]
     // var deviceTableData = [
     //     {name: 'MAC',       value: 'a1:b2:c3:d4:e5:d6'},
@@ -172,6 +191,7 @@ updateIntoTable('people3', peopleData, "id=1");
     // ]
     createTable(Constants.TABLENAMES.deviceTable, deviceTableFields).then(() => {
         // insertIntoTable(Constants.TABLENAMES.deviceTable, deviceTableData);
+        console.log("Device table create then");
     });
 }
 
@@ -191,6 +211,99 @@ updateIntoTable('people3', peopleData, "id=1");
     // ]
     createTable(Constants.TABLENAMES.dataTable, dataTableFields).then(() => {
         // insertIntoTable(Constants.TABLENAMES.dataTable, dataTableData);
+    });
+}
+
+// Drop NodeTypes table and create again
+{
+    var nodeTypeFields = [
+        {name: 'id',        type: 'SERIAL',             cond: ''},
+        {name: 'nodeType',  type: 'VARCHAR(20)',        cond: ''}
+    ];
+
+    var nodeTypeData = [
+        [{name: 'nodeType',  value: 'Invalid'}],
+        [{name: 'nodeType',  value: 'Analog Sensor'}],
+        [{name: 'nodeType',  value: 'Digital Sensor'}],
+        [{name: 'nodeType',  value: 'Analog Actuator'}],
+        [{name: 'nodeType',  value: 'Digital Actuator'}]
+    ]
+
+    dropTable(Constants.TABLENAMES.nodeTypesTable).then(() => {
+        createTable(Constants.TABLENAMES.nodeTypesTable, nodeTypeFields).then(() => {
+            // nodeTypeData.forEach((e)=>{
+            //     insertIntoTable(Constants.TABLENAMES.nodeTypesTable, e);
+            // });
+            insertIntoTable(Constants.TABLENAMES.nodeTypesTable, nodeTypeData[0]).then(()=>{
+                insertIntoTable(Constants.TABLENAMES.nodeTypesTable, nodeTypeData[1]).then(()=>{
+                    insertIntoTable(Constants.TABLENAMES.nodeTypesTable, nodeTypeData[2]).then(()=>{
+                        insertIntoTable(Constants.TABLENAMES.nodeTypesTable, nodeTypeData[3]).then(()=>{
+                            insertIntoTable(Constants.TABLENAMES.nodeTypesTable, nodeTypeData[4]);      // This is a shitty way
+                        });
+                    });
+                });
+            });
+        });
+    });
+}
+
+// Drop Protocol table and create again
+{
+    var protocolFields = [
+        {name: 'id',        type: 'SERIAL',             cond: ''},
+        {name: 'protocol',  type: 'VARCHAR(10)',        cond: ''}
+    ];
+
+    var protocolData = [
+        [{name: 'protocol',  value: 'Invalid'}],
+        [{name: 'protocol',  value: 'HTTP'}],
+        [{name: 'protocol',  value: 'MQTT'}],
+        [{name: 'protocol',  value: 'XBEE'}]
+    ]
+
+    dropTable(Constants.TABLENAMES.protocolTypesTable).then(() => {
+        createTable(Constants.TABLENAMES.protocolTypesTable, protocolFields).then(() => {
+            // nodeTypeData.forEach((e)=>{
+            //     insertIntoTable(Constants.TABLENAMES.nodeTypesTable, e);
+            // });
+            insertIntoTable(Constants.TABLENAMES.protocolTypesTable, protocolData[0]).then(()=>{
+                insertIntoTable(Constants.TABLENAMES.protocolTypesTable, protocolData[1]).then(()=>{
+                    insertIntoTable(Constants.TABLENAMES.protocolTypesTable, protocolData[2]).then(()=>{
+                        insertIntoTable(Constants.TABLENAMES.protocolTypesTable, protocolData[3]);  // Seriously this is a shitty way
+                    });
+                });
+            });
+        });
+    });
+}
+
+// Drop Widget table and create again
+{
+    var widgetTypeFields = [
+        {name: 'id',        type: 'SERIAL',             cond: ''},
+        {name: 'widget',    type: 'VARCHAR(10)',        cond: ''}
+    ];
+
+    var widgetTypeData = [
+        [{name: 'widget',   value: 'None'}],
+        [{name: 'widget',   value: 'Chart'}],
+        [{name: 'widget',   value: 'Widget 2'}],
+        [{name: 'widget',   value: 'Widget 3'}]
+    ]
+
+    dropTable(Constants.TABLENAMES.widgetTypesTable).then(() => {
+        createTable(Constants.TABLENAMES.widgetTypesTable, widgetTypeFields).then(() => {
+            // nodeTypeData.forEach((e)=>{
+            //     insertIntoTable(Constants.TABLENAMES.nodeTypesTable, e);
+            // });
+            insertIntoTable(Constants.TABLENAMES.widgetTypesTable, widgetTypeData[0]).then(()=>{
+                insertIntoTable(Constants.TABLENAMES.widgetTypesTable, widgetTypeData[1]).then(()=>{
+                    insertIntoTable(Constants.TABLENAMES.widgetTypesTable, widgetTypeData[2]).then(()=>{
+                        insertIntoTable(Constants.TABLENAMES.widgetTypesTable, widgetTypeData[3]);  // Seriously this is a shitty way
+                    });
+                });
+            });
+        });
     });
 }
 
