@@ -287,7 +287,7 @@ updateIntoTable('people3', peopleData, "id=1");
     var widgetTypeData = [
         [{name: 'widget',   value: 'None'}],
         [{name: 'widget',   value: 'Chart'}],
-        [{name: 'widget',   value: 'Widget 2'}],
+        [{name: 'widget',   value: 'Gauge'}],
         [{name: 'widget',   value: 'Widget 3'}]
     ]
 

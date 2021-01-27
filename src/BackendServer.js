@@ -172,7 +172,7 @@ router.route('/data')
             else {
                 var date = new Date();
                 var timestamp = date.getTime();
-                deviceData.push({name: 'timestamp', value: Math.floor(timestamp/1000)});
+                deviceData.push({name: 'timestamp', value: timestamp});
             }
         }
         pgdb.insertIntoTable(Constants.TABLENAMES.dataTable, deviceData)
@@ -259,3 +259,33 @@ router.route('/device/data/:deviceid')
             res.status(500).end();
         });
     });
+
+// API to set fav flag true or false
+router.route('/device/fav/:id')
+    .put((req, res) => {
+        console.log('Set Fav: ' + req.body.favflag + ' id: ' + req.params.id);
+        var data = [{name: 'favorite', value: req.body.favflag}]
+        pgdb.updateIntoTable(Constants.TABLENAMES.deviceTable, data, "id="+req.params.id)
+        .then((rep) => {
+            res.send(rep);
+        })
+        .catch((error) => {
+            res.statusMessage = "Database Operation failed";
+            res.status(500).end();
+        })
+    });
+
+// API to set the widget type
+router.route('/device/widget/:id')
+        .put((req, res) => {
+            console.log('Set Widget: ' + req.body.widgetType + ' id: ' + req.params.id);
+            var data = [{name: 'widget', value: req.body.widgetType}]
+            pgdb.updateIntoTable(Constants.TABLENAMES.deviceTable, data, "id="+req.params.id)
+            .then((rep) => {
+                res.send(rep);
+            })
+            .catch((error) => {
+                res.statusMessage = "Database Operation failed";
+                res.status(500).end();
+            })
+        })
